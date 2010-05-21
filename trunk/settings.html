@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Settings</title>
+    <script type="text/javascript" src="./js/jquery-latest.min.js"></script>
+	<script type="text/javascript" src="./js/tpg.js"></script>
+    <script type="text/javascript" src="./js/settings.js"></script>
+	<link href="styles/settings.css" rel="stylesheet" type="text/css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+</head>
+<body onload="settings_load()">
+	<div class="container">
+		<table>
+			<tr><td><label for="username">Username</label><br /><input type="text" id="username" /></td></tr>
+			<tr><td><label for="password">Password</label><br /><input type="password" id="password" /></td></tr>
+			<tr><td><button id="btnCheck" type="button">Find Quota</button></td></tr>
+			<tr><td><div id="msg"></div></td></tr>
+			<tr><td><label for="peak_quota">Daily/Peak Quota (MB)</label><br /><input type="text" id="peak_quota" /></td></tr>
+			<tr><td><label for="offpeak_quota">Off-Peak Quota (MB)</label><br /><input type="text" id="offpeak_quota" /></td></tr>
+			<tr><td><label for="interval">Update Interval (Hours)</label><br /><input type="text" id="interval" /></td></tr>
+		</table>
+	</div>
+</body>
+</html>
