@@ -28,14 +28,19 @@ function settings_load() {
 				set_msg(error == tpg.usage.error.invalid ? "invalid login" : "manual entry required");
 
 			}, function (data) {
-				$.get("http://www.tpg.com.au/products_services/adsl2plus_pricing.php", function (html) {
+				$.get("http://www.jeltel.com.au/tools/tpgplans.php",
+				{ action: "get", plan: escape(data.plan) },
+				function (html) {
 					$(".container *").attr("disabled", false);
 					$btnCheck.removeClass("processing");
-
-					var quota = new RegExp("<b>" + data.plan.replace(/([ \/])/g, ".+?") + "</b></div></td>[\\s\\S]+?\\((\\d+?)GB\\+(\\d+?)GB\\)").exec(html);
-					if (quota.length > 2) {
-						$peak_quota.val(quota[1] * 1000);
-						$offpeak_quota.val(quota[2] * 1000);
+	
+					var r = /R=(\w*)/.exec(html);
+					if(r && r[1] == "SUCCESS") {
+						var peak = /P=(\d*)/.exec(html);
+						var offpeak = /O=(\d*)/.exec(html);
+						
+						$peak_quota.val(peak[1]);
+						$offpeak_quota.val(offpeak[1]);
 						return;
 					}
 					set_msg("manual entry required");
