@@ -32,27 +32,28 @@ function get_usage() {
 	}
 
 	window.clearTimeout(timer);
-	set_msg("updating...", true);
+	$refresh.removeClass("error").addClass("processing");
+	set_msg();
 	fly.show = false;
 
 	tpg.usage.scrape(tpg.settings.username, tpg.settings.password,
 		function (error) {
 			switch (error) {
 				case tpg.usage.error.invalid:
-					set_msg("invalid login");
+					set_error("invalid login");
 					break;
 				case tpg.usage.error.unknown:
-					set_msg("problem getting usage");
-					timer = window.setTimeout(get_usage, 1000 * 60 * 5);
+					set_error("problem getting usage");
+					timer = window.setTimeout(get_usage, 1000 * 20);
 					break;
 				case tpg.usage.error.parse:
-					set_msg("parse error, need to update gadget");
+					set_error("parse error, need to update gadget");
 					break;
 			}
 
 		}, function (data) {
-			set_msg();
-
+			$refresh.removeClass("processing");
+		
 			// Header
 			var $plan_a = $("<a href='javascript:;'></a>").html(data.plan.substring(0, 20) + "...");			
 			$("h1").attr("title", data.plan).html($plan_a);
@@ -127,6 +128,10 @@ function set_usage($bar, usage, period) {
 function set_msg(msg, processing) {
 	if (!processing) processing = false;
 	$(".msg").toggle(msg != null).toggleClass("processing", processing).html(msg);
+}
+
+function set_error(error) {
+	$refresh.addClass("error").attr("title", error);
 }
 
 function go(to, params) {
