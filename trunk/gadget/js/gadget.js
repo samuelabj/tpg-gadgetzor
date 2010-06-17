@@ -1,5 +1,13 @@
+Helper.Debug.enabled = true;
+
+Tpg.Update.check(function () { });
+
+var settings = Helper.Settings;
+settings.init("username", "password", "peak_quota", "offpeak_quota", "interval");
+
 var fly = System.Gadget.Flyout;
 fly.file = "flyout.html";
+
 System.Gadget.settingsUI = "settings.html";
 System.Gadget.onSettingsClosed = settings_closed;
 
@@ -26,9 +34,17 @@ function settings_closed(e) {
 }
 
 function get_usage() {
-	tpg.settings.load();
-	if (!tpg.settings.username) {
+	settings.load();
+	if (!settings.username) {
 		return;
+	}
+
+	if (settings.offpeak_quota == 0) {
+		$offpeak.hide();
+		$(".bar").addClass("bar-shift");
+	} else {
+		$offpeak.show();
+		$(".bar").removeClass("bar-shift");
 	}
 
 	window.clearTimeout(timer);
@@ -36,17 +52,17 @@ function get_usage() {
 	set_msg();
 	fly.show = false;
 
-	tpg.usage.scrape(tpg.settings.username, tpg.settings.password,
+	Tpg.Usage.scrape(settings.username, settings.password,
 		function (error) {
 			switch (error) {
-				case tpg.usage.error.invalid:
+				case Tpg.Usage.Error.invalid:
 					set_error("invalid login");
 					break;
-				case tpg.usage.error.unknown:
+				case Tpg.Usage.Error.unknown:
 					set_error("problem getting usage");
 					timer = window.setTimeout(get_usage, 1000 * 20);
 					break;
-				case tpg.usage.error.parse:
+				case Tpg.Usage.Error.parse:
 					set_error("parse error, need to update gadget");
 					break;
 			}
@@ -61,12 +77,12 @@ function get_usage() {
 			var period = new Period(data.expire);
 			
 			// Peak
-			var peak = new Usage("Peak", tpg.settings.peak_quota, data.peak, period);
+			var peak = new Usage("Peak", settings.peak_quota, data.peak, period);
 			set_usage($peak, peak, period);
 			
 			// Offpeak
-			if(tpg.settings.offpeak_quota > 0 && data.offpeak !== null) {
-				var offpeak = new Usage("Off-Peak", tpg.settings.offpeak_quota, data.offpeak, period);
+			if(settings.offpeak_quota > 0 && data.offpeak !== null) {
+				var offpeak = new Usage("Off-Peak", settings.offpeak_quota, data.offpeak, period);
 				set_usage($offpeak, offpeak, period);
 			}
 			
@@ -74,9 +90,9 @@ function get_usage() {
 			$expire.find(".bar-extend").css("width", period.percent + "%");
 			$expire.find("span").html(period.percent + "%");
 			var expireRemainingString = Math.floor(period.remaining.days) + " " +
-			tpg.pluralise(Math.floor(period.remaining.days), "day") + " " +
+			Helper.pluralise(Math.floor(period.remaining.days), "day") + " " +
 			Math.floor(period.remaining.hours) + " " +
-			tpg.pluralise(Math.floor(period.remaining.hours), "hour");
+			Helper.pluralise(Math.floor(period.remaining.hours), "hour");
 			$expire.attr("title", expireRemainingString + " remaining");
 
 			var updated = new Date().toString();
@@ -88,7 +104,7 @@ function get_usage() {
 			});
 			
 			$refresh.attr("title", "Last updated " + updated);
-			timer = window.setTimeout(get_usage, 1000 * 60 * 60 * tpg.settings.interval);
+			timer = window.setTimeout(get_usage, 1000 * 60 * 60 * settings.interval);
 		});
 }
 

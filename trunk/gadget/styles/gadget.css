@@ -70,6 +70,10 @@ a.refresh.error:hover {
 	position: relative;
 }
 
+.bar.bar-shift {
+	margin-top: 17px;
+}
+
 .bar:hover {
 	border: solid 1px white;
 	cursor: pointer;	

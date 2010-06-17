@@ -1,57 +1,27 @@
-var tpg = {
-	pluralise: function (number, text) {
-		return text + (number == 1 ? "" : "s");
-	},
-
-	ajax: function (url, data, oncomplete, options) {
-		if (!options) options = {};
-		var defaults = {
-			type: "POST",
-			cache: false,
-			async: true
-		}
-		$.extend(defaults, options);
-
-		var func = function (r, data) {
-			oncomplete(r, data);
-		}
-
-		$.ajax({
-			url: url,
-			type: defaults.type,
-			data: data,
-			cache: defaults.cache,
-			success: function (data) { func(true, data); },
-			error: function () { func(false); }
-		});
-	},
-	
-	isNumber: function(val) {
-		return val !== "" && !isNaN(val);
-	}
+var Tpg = {
 }
 
-tpg.usage = {
-	error: {
+Tpg.Usage = {
+	Error: {
 		unknown: 0,
 		invalid: 1,
 		parse: 2
 	},
 
 	scrape: function (username, password, onerror, onsuccess) {
-		tpg.ajax("https://cyberstore.tpg.com.au/your_account/index.php?function=checkaccountusage",
+		Helper.ajax("https://cyberstore.tpg.com.au/your_account/index.php?function=checkaccountusage",
 		{
 			check_username: username,
 			password: password
 		},
 		function (r, data) {
 			if (!r) {
-				onerror(tpg.usage.error.unknown);
+				onerror(Tpg.Usage.Error.unknown);
 				return;
 			}
 
 			if (data.indexOf("Invalid username") != -1) {
-				onerror(tpg.usage.error.invalid);
+				onerror(Tpg.Usage.Error.invalid);
 				return;
 			}
 
@@ -64,7 +34,7 @@ tpg.usage = {
 			var expire = /<b>Expiry Date:<\/b>(.+?)<\/td>/.exec(data);
 			
 			if(!plan || !peak || !expire) {
-				onerror(tpg.usage.error.parse);
+				onerror(Tpg.usage.error.parse);
 				return;
 			}
 			
@@ -82,24 +52,70 @@ tpg.usage = {
 	}
 }
 
-tpg.settings = {
-	username: null,
-	password: null,
-	peak_quota: null,
-	offpeak_quota: null,
-	interval: null,
+Tpg.Update = {
+	check: function (success) {
+		var self = this;
 
-	load: function () {
-		for (var k in this) {
-			if (typeof this[k] == "function") continue;
-			this[k] = System.Gadget.Settings.readString(k);
-		}
-	},
+		$.ajax({
+			type: "GET",
+			url: "http://code.google.com/feeds/p/tpg-gadgetzor/downloads/basic",
+			dataType: "text",
+			error: function () {
+			},
+			success: function (data, msg, xhr) {
+				// Bug in IE doesn't parse the xml correctly the first time
+				var xml = xhr.responseXML;
+				xml.loadXML(data);
 
-	save: function () {
-		for (var k in this) {
-			if (typeof this[k] == "function") continue;
-			System.Gadget.Settings.writeString(k, this[k]);
-		}
+				var content = $(xml).find("entry content").text();
+				var v = new Number(/TPG Gadgetzor (\d+\.\d+\.\d+)/.exec(content)[1].replace(/\./g, ""));
+				var d = /<a href="(.*)">Download<\/a>/.exec(content)[1];
+
+				var current = new Number(System.Gadget.version.replace(/\./g, ""));
+				if (v > current) {
+					success({ version: v, download: d });
+				}
+			}
+		});
 	}
+}
+var Atom = {};
+
+Atom.Feed = function (id, title, updated, entries) {
+	this.id = id;
+	this.title = title;
+	this.updated = updated;
+	this.entries = entries;
+}
+
+Atom.Entry = function (id, title, updated, link, author, content) {
+	this.id = id;
+	this.title = title;
+	this.updated = updated;
+	this.link = link;
+	this.author = author;
+	this.content = content;
+}
+
+Atom.Content = function (type, body) {
+	this.type = type;
+	this.body = body;
+}
+
+Atom.parse = function (xml) {
+
+}
+
+Atom.pull = function (params) {
+	var self = this;
+
+	$.ajax({
+		type: "GET",
+		url: params.url,
+		data: params.args,
+		dataType: "xml",
+		success: function (xml) {
+			params.success(self.parse(xml));
+		} 
+	});
 }
