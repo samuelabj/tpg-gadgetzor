@@ -1,9 +1,6 @@
-Helper.Debug.enabled = true;
-
-Tpg.Update.check(function () { });
+Helper.Debug.enabled = false;
 
 var settings = Helper.Settings;
-settings.init("username", "password", "peak_quota", "offpeak_quota", "interval");
 
 var fly = System.Gadget.Flyout;
 fly.file = "flyout.html";
@@ -23,18 +20,37 @@ function gadget_load() {
 	$refresh.click(function() {
 		get_usage();
 	});
-	
+
+	settings.load();
+	check_updates();
 	get_usage();
+}
+
+var update_timer;
+function check_updates() {
+	window.clearTimeout(update_timer);
+	if (settings.update != "true") return;
+
+	Tpg.Update.check(function (r, data) {
+		if (!r) return;
+		setFlyout("A new update is available", function (win) {
+			win.append("", "");
+			win.append("<span style='margin-left: 5px;'>version</span> " + data.version, "<a style='margin-left: 5px;' href='" + data.download + "'>download</a>");
+		});
+	});
+
+	update_timer = window.setTimeout(check_updates, 1000 * 60 * 60);
 }
 
 function settings_closed(e) {
 	if (e.closeAction == e.Action.commit) {
+		settings.load();
 		get_usage();
+		check_updates();
 	}
 }
 
 function get_usage() {
-	settings.load();
 	if (!settings.username) {
 		return;
 	}
@@ -110,19 +126,23 @@ function get_usage() {
 
 function doFlyout($bar, title, func) {
 	$bar[0].onclick = function () {
-		var onShow = function () {
-			var win = fly.document.parentWindow;
-			win.title(title);
-			win.clear();
-			func(win);
-		}
+		setFlyout(title, func);
+	}
+}
 
-		if (!fly.show) {
-			fly.onShow = onShow;
-			fly.show = true;
-		} else {
-			onShow();
-		}
+function setFlyout(title, func) {
+	var onShow = function () {
+		var win = fly.document.parentWindow;
+		win.title(title);
+		win.clear();
+		func(win);
+	}
+
+	if (!fly.show) {
+		fly.onShow = onShow;
+		fly.show = true;
+	} else {
+		onShow();
 	}
 }
 

@@ -3,8 +3,8 @@
 <head>
     <title>Settings</title>
     <script type="text/javascript" src="./js/jquery-latest.min.js"></script>
-	<script type="text/javascript" src="./js/tpg.js"></script>
     <script type="text/javascript" src="./js/helper.js"></script>
+	<script type="text/javascript" src="./js/tpg.js"></script>
     <script type="text/javascript" src="./js/settings.js"></script>
 	<link href="styles/settings.css" rel="stylesheet" type="text/css" />
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
@@ -15,11 +15,15 @@
 			<tr><td><label for="username">Username</label><br /><input type="text" id="username" /></td></tr>
 			<tr><td><label for="password">Password</label><br /><input type="password" id="password" /></td></tr>
 			<tr><td><button id="btnCheck" type="button">Find Quota</button></td></tr>
-			<tr><td><div id="msg"></div></td></tr>
 			<tr><td><label for="peak_quota">Daily/Peak Quota (MB)</label><br /><input type="text" id="peak_quota" /></td></tr>
 			<tr><td><label for="offpeak_quota">Off-Peak Quota (MB)</label><br /><input type="text" id="offpeak_quota" /></td></tr>
 			<tr><td><label for="interval">Update Interval (Hours)</label><br /><input type="text" id="interval" /></td></tr>
+			<tr><td><input type="checkbox" class="chk" id="update" /> <label for="update">check for updates</label> (<a id="update_check" href="javascript:;">check now</a>)</td></tr>
 		</table>
+	</div>
+	<div id="msg" style="display: none">
+		<a class="close" href="javascript:;" onclick="window.clearTimeout(msg_timer);$('#msg').hide();">x</a>
+		<div></div>
 	</div>
 </body>
 </html>

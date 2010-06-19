@@ -25,9 +25,14 @@ var Helper = {
 			error: function () { func(false); }
 		});
 	},
-	
-	isNumber: function(val) {
+
+	isNumber: function (val) {
 		return val !== "" && !isNaN(val);
+	},
+
+	encode: function (val) {
+		val = (val + "").toString();
+		return encodeURIComponent(val).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
 	}
 }
 
