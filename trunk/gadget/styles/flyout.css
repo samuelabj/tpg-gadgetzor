@@ -44,20 +44,23 @@ div.container {
 	background-image: url(images/clock_big.png);	
 }
 
+a {
+	color: White;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #CCCCCC;
+}
+
 a.close {
-	color: white;
 	position: absolute;
 	right: 5px;
 	top: -3px;
 	display: block;
 	padding: 3px 3px;
-	text-decoration: none;
 	font-size: .7em;
 	font-weight: bold;
-}
-
-a.close:hover {
-	color: #CCCCCC;
 }
 
 table {

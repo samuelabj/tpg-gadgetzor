@@ -1,3 +1,5 @@
+Helper.Settings.init("username", "password", "peak_quota", "offpeak_quota", "interval", "update");
+
 var Tpg = {
 }
 
@@ -53,7 +55,7 @@ Tpg.Usage = {
 }
 
 Tpg.Update = {
-	check: function (success) {
+	check: function (complete) {
 		var self = this;
 
 		$.ajax({
@@ -61,6 +63,7 @@ Tpg.Update = {
 			url: "http://code.google.com/feeds/p/tpg-gadgetzor/downloads/basic",
 			dataType: "text",
 			error: function () {
+				complete(false, "Could not retrieve update information");
 			},
 			success: function (data, msg, xhr) {
 				// Bug in IE doesn't parse the xml correctly the first time
@@ -68,13 +71,16 @@ Tpg.Update = {
 				xml.loadXML(data);
 
 				var content = $(xml).find("entry content").text();
-				var v = new Number(/TPG Gadgetzor (\d+\.\d+\.\d+)/.exec(content)[1].replace(/\./g, ""));
+				var v = /TPG Gadgetzor (\d+\.\d+\.\d+)/.exec(content)[1];
 				var d = /<a href="(.*)">Download<\/a>/.exec(content)[1];
 
 				var current = new Number(System.Gadget.version.replace(/\./g, ""));
-				if (v > current) {
-					success({ version: v, download: d });
+				if (new Number(v.replace(/\./g, "")) > current) {
+					complete(true, { version: v, download: d });
+					return;
 				}
+
+				complete(false, "No update available");
 			}
 		});
 	}
